@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#Creo la BD con el comando: createdb -h localhost -U gitpod example
+
 # 1) Connect to the database here using the SQLAlchemy's create_engine function
 connection_string = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
 engine = create_engine(connection_string).execution_options(autocommit=True)
@@ -12,13 +14,13 @@ engine.connect()
 
 # 2) Execute the SQL sentences to create your tables using the SQLAlchemy's execute function
 engine.execute("""
-CREATE TABLE publishers(
+CREATE TABLE IF NOT EXISTS publishers(
     publisher_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     PRIMARY KEY(publisher_id)
 );
 
-CREATE TABLE authors(
+CREATE TABLE IF NOT EXISTS authors(
     author_id INT NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     middle_name VARCHAR(50) NULL,
@@ -26,7 +28,7 @@ CREATE TABLE authors(
     PRIMARY KEY(author_id)
 );
 
-CREATE TABLE books(
+CREATE TABLE IF NOT EXISTS books(
     book_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     total_pages INT NULL,
@@ -38,7 +40,7 @@ CREATE TABLE books(
     CONSTRAINT fk_publisher FOREIGN KEY(publisher_id) REFERENCES publishers(publisher_id)
 );
 
-CREATE TABLE book_authors (
+CREATE TABLE IF NOT EXISTS book_authors (
     book_id INT NOT NULL,
     author_id INT NOT NULL,
     PRIMARY KEY(book_id, author_id),
@@ -46,6 +48,8 @@ CREATE TABLE book_authors (
     CONSTRAINT fk_author FOREIGN KEY(author_id) REFERENCES authors(author_id) ON DELETE CASCADE
 );
 """)
+
+
 
 # 3) Execute the SQL sentences to insert your data using the SQLAlchemy's execute function
 engine.execute("""
@@ -88,6 +92,8 @@ INSERT INTO book_authors (book_id, author_id) VALUES (8, 2);
 INSERT INTO book_authors (book_id, author_id) VALUES (9, 4);
 INSERT INTO book_authors (book_id, author_id) VALUES (10, 1);
 """)
+
+
 
 # 4) Use pandas to print one of the tables as dataframes using read_sql function
 result_dataFrame = pd.read_sql("Select * from publishers;", engine)
